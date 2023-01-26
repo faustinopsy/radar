@@ -18,7 +18,7 @@
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background-color: rgba(0,244,0,0.5);
+  background-color: rgba(0,244,0,0.3);
    animation: pulse 2s infinite;
 }
 
@@ -100,12 +100,6 @@
 }
 
 
-
-canvas {
-  background: radial-gradient(#222, #111);
-  border-radius: 100%;
-  display: block;
-}
 </style>
 <div id="bg">
 <div id="radar">
@@ -117,6 +111,16 @@ canvas {
 <div ></div>
 
 <script>
+var arrow = document.querySelector(".arrow");
+
+
+var distanceInPx = 50;
+var distanceInKm = distanceInPx * 10 / 1000;
+
+var radar = document.getElementById("radar");
+radar.style.width = distanceInPx + "px";
+radar.style.height = distanceInPx + "px";
+
   // Obtém a localização do usuário
   navigator.geolocation.getCurrentPosition(function(position) {
     var userLat = position.coords.latitude;
@@ -134,33 +138,44 @@ canvas {
 
     // Atualiza o label com a distância calculada
     document.getElementById("distance").innerHTML = distance.toFixed(1) + "km";
+var angle = Math.atan2(targetLat - userLat, targetLon - userLon);
+
+  // Define o atributo transform da seta
+arrow.setAttribute("transform", "rotate(0rad)");
+arrow.setAttribute("transform", "rotate(" + angle + "rad)");
+
+var angle = Math.atan2(targetLat - userLat, targetLon - userLon);
+arrow.setAttribute("transform", "rotate(" + angle + "rad)");
+var distance = calculateDistance(userLat, userLon, targetLat, targetLon) / 1000;
 
   });
 
-  // Função para calcular a distância entre duas localizações
-  function calculateDistance(lat1, lon1, lat2, lon2) {
-    var R = 6371; // raio da Terra em km
-    var dLat = (lat2 - lat1) * (Math.PI / 180);
-    var dLon = (lon2 - lon1) * (Math.PI / 180);
-    var a = 
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * 
-      Math.sin(dLon / 2) * Math.sin(dLon / 2)
-      ; 
-    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); 
-    var d = R * c;
-    return d;
-  }
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  var R = 6371; // raio da Terra em km
+  var dLat = (lat2 - lat1) * (Math.PI / 180);
+  var dLon = (lon2 - lon1) * (Math.PI / 180);
+  var a = 
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * 
+    Math.sin(dLon / 2) * Math.sin(dLon / 2)
+    ; 
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); 
+  var d = R * c;
+  return d;
+}
 
-  // Função para atualizar o radar com a distância calculada
-  function updateRadar(distance) {
-    // Obtém o elemento do "blip"
-    var blip = document.querySelector(".blip");
+function updateRadar(distance) {
+  // Obtém o elemento do radar
+  var radar = document.getElementById("radar");
 
-    // Atualiza a posição do "blip" baseado na distância calculada
-    blip.style.left = (100 - (distance / 1000)) + "%";
-    blip.style.top = (100 - (distance / 1000)) + "%";
-  }
+  // Obtém o elemento do "blip"
+  var blip = radar.querySelector(".blip");
+
+  // Atualiza a posição do "blip" baseado na distância calculada
+  blip.style.left = (100 - (distance / 1000)) + "%";
+  blip.style.top = (100 - (distance / 1000)) + "%";
+}
+
 </script>
 
 </body>
